@@ -8,21 +8,21 @@ datasource db {
 }
 
 model User {
-  id                         Int                         @id @default(autoincrement())
-  password                   String
-  firstName                  String
-  lastName                   String
-  linkedinAccount            String?
-  dateOfBirth                DateTime
-  isActive                   Boolean                     @default(true)
-  displayName                String
-  isAdmin                    Boolean                     @default(false)
-  permission                 String[]
-  institutionWorkerProfiles  InstitutionWorkerProfile[]
-  institutionStudentProfiles InstitutionStudentProfile[]
-  researchPapers             ResearchPaper[]             @relation("Author")
-  blogs                      Blog[]
-  researchTeams              ResearchTeam[]
+  id                           Int                            @id @default(autoincrement())
+  password                     String
+  firstName                    String
+  lastName                     String
+  linkedinAccount              String?
+  dateOfBirth                  DateTime
+  isActive                     Boolean                        @default(true)
+  displayName                  String
+  isAdmin                      Boolean                        @default(false)
+  permission                   String[]
+  institutionWorkerProfiles    InstitutionWorkerProfile[]
+  StudentInstituionAffiliation StudentInstituionAffiliation[]
+  researchPapers               ResearchPaper[]                @relation("Author")
+  blogs                        Blog[]
+  researchTeams                ResearchTeam[]
 }
 
 model ResearchPaper {
@@ -59,32 +59,33 @@ model InstitutionWorkerProfile {
   institution                 Institution @relation(fields: [institutionId], references: [id])
 }
 
-model InstitutionStudentProfile {
+model StudentInstituionAffiliation {
   id             Int         @id @default(autoincrement())
   enrolment_year Int
-  program        String
+  program        String?
   institutionId  Int
   institution    Institution @relation(fields: [institutionId], references: [id])
   user           User        @relation(fields: [userId], references: [id])
   userId         Int
-  bacScore       Float
+  bacScore       Float?
 }
 
 model Institution {
-  id                        Int                         @id @default(autoincrement())
-  name                      String
-  address                   String
-  website                   String
-  contact                   String
-  accreditation             String
-  workers                   InstitutionWorkerProfile[]
-  researchLab               ResearchLab[]
+  id                           Int                            @id @default(autoincrement())
+  name                         String
+  address                      String
+  website                      String
+  contact                      String
+  accreditation                String
+  workers                      InstitutionWorkerProfile[]
+  researchLab                  ResearchLab[]
+  verified                     Boolean                        @default(false)
   // Self-relation: Parent Institution
-  parentInstitutionId       Int?
-  parentInstitution         Institution?                @relation("InstitutionHierarchy", fields: [parentInstitutionId], references: [id])
+  parentInstitutionId          Int?
+  parentInstitution            Institution?                   @relation("InstitutionHierarchy", fields: [parentInstitutionId], references: [id])
   // Self-relation: Child Institutions
-  childInstitutions         Institution[]               @relation("InstitutionHierarchy")
-  institutionStudentProfile InstitutionStudentProfile[]
+  childInstitutions            Institution[]                  @relation("InstitutionHierarchy")
+  StudentInstituionAffiliation StudentInstituionAffiliation[]
 
   researchOffer     ResearchOffer[]
   events            Event[]
@@ -93,6 +94,7 @@ model Institution {
   researchTeam      ResearchTeam[]
   curriculum        Curriculum[]
   course            Course[]
+  Funding           Funding[]
 }
 
 model InstitutionKind {
@@ -222,6 +224,18 @@ model Course {
   preReqs       String
   Term          Term        @relation(fields: [termId], references: [id])
   termId        Int
+  institutionId Int
+  institution   Institution @relation(fields: [institutionId], references: [id])
+}
+
+model Funding {
+  id            Int         @id @default(autoincrement())
+  title         String
+  name          String
+  description   String
+  deadline      DateTime
+  contactEmail  String
+  contactLink   String
   institutionId Int
   institution   Institution @relation(fields: [institutionId], references: [id])
 }
