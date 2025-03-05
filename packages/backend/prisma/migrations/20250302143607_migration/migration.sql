@@ -1,3 +1,9 @@
+-- CreateEnum
+CREATE TYPE "InstitutionType" AS ENUM ('University', 'College', 'Polythechnic', 'Institute', 'Research_Center', 'Training_Center');
+
+-- CreateEnum
+CREATE TYPE "FieldOfStudy" AS ENUM ('Arts_And_Humanities', 'Business', 'Health_And_Medecine', 'Multi_interdisciplinary_Studies', 'Public_And_Social_Services', 'Technology_Engineering_And_Technology', 'Math', 'Science', 'Social_Sciences', 'Trades_And_Personal_Services');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
@@ -68,24 +74,18 @@ CREATE TABLE "StudentInstituionAffiliation" (
 CREATE TABLE "Institution" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "address" TEXT NOT NULL,
-    "website" TEXT NOT NULL,
+    "website" TEXT,
     "contact" TEXT NOT NULL,
-    "accreditation" TEXT NOT NULL,
+    "accreditation" TEXT,
+    "estYear" INTEGER NOT NULL,
     "verified" BOOLEAN NOT NULL DEFAULT false,
+    "location" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL DEFAULT 'icon.png',
+    "institutionType" "InstitutionType" NOT NULL,
+    "isPublic" BOOLEAN NOT NULL,
     "parentInstitutionId" INTEGER,
-    "institutionKindId" INTEGER NOT NULL,
 
     CONSTRAINT "Institution_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "InstitutionKind" (
-    "id" SERIAL NOT NULL,
-    "type" TEXT NOT NULL,
-    "isPublic" BOOLEAN NOT NULL,
-
-    CONSTRAINT "InstitutionKind_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -168,23 +168,14 @@ CREATE TABLE "Curriculum" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "degree" TEXT NOT NULL,
     "admissionRequirement" TEXT NOT NULL,
     "applicationProcedure" TEXT NOT NULL,
     "tuition" INTEGER NOT NULL,
     "institutionId" INTEGER NOT NULL,
     "curriculumKindId" INTEGER NOT NULL,
+    "fieldOfStudy" "FieldOfStudy" NOT NULL,
 
     CONSTRAINT "Curriculum_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Field" (
-    "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-
-    CONSTRAINT "Field_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -192,7 +183,10 @@ CREATE TABLE "CurriculumKind" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
+    "degree" TEXT NOT NULL,
     "isDegree" BOOLEAN NOT NULL,
+    "duration" TEXT NOT NULL,
+    "institutionId" INTEGER NOT NULL,
 
     CONSTRAINT "CurriculumKind_pkey" PRIMARY KEY ("id")
 );
@@ -277,14 +271,6 @@ CREATE TABLE "_ResearchTeamToUser" (
     CONSTRAINT "_ResearchTeamToUser_AB_pkey" PRIMARY KEY ("A","B")
 );
 
--- CreateTable
-CREATE TABLE "_CurriculumToField" (
-    "A" INTEGER NOT NULL,
-    "B" INTEGER NOT NULL,
-
-    CONSTRAINT "_CurriculumToField_AB_pkey" PRIMARY KEY ("A","B")
-);
-
 -- CreateIndex
 CREATE INDEX "_Author_B_index" ON "_Author"("B");
 
@@ -300,9 +286,6 @@ CREATE INDEX "_EventTags_B_index" ON "_EventTags"("B");
 -- CreateIndex
 CREATE INDEX "_ResearchTeamToUser_B_index" ON "_ResearchTeamToUser"("B");
 
--- CreateIndex
-CREATE INDEX "_CurriculumToField_B_index" ON "_CurriculumToField"("B");
-
 -- AddForeignKey
 ALTER TABLE "InstitutionWorkerProfile" ADD CONSTRAINT "InstitutionWorkerProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -317,9 +300,6 @@ ALTER TABLE "StudentInstituionAffiliation" ADD CONSTRAINT "StudentInstituionAffi
 
 -- AddForeignKey
 ALTER TABLE "Institution" ADD CONSTRAINT "Institution_parentInstitutionId_fkey" FOREIGN KEY ("parentInstitutionId") REFERENCES "Institution"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Institution" ADD CONSTRAINT "Institution_institutionKindId_fkey" FOREIGN KEY ("institutionKindId") REFERENCES "InstitutionKind"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Blog" ADD CONSTRAINT "Blog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -340,10 +320,10 @@ ALTER TABLE "ResearchTeam" ADD CONSTRAINT "ResearchTeam_institutionId_fkey" FORE
 ALTER TABLE "ResearchTeam" ADD CONSTRAINT "ResearchTeam_researchLabId_fkey" FOREIGN KEY ("researchLabId") REFERENCES "ResearchLab"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Curriculum" ADD CONSTRAINT "Curriculum_institutionId_fkey" FOREIGN KEY ("institutionId") REFERENCES "Institution"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Curriculum" ADD CONSTRAINT "Curriculum_curriculumKindId_fkey" FOREIGN KEY ("curriculumKindId") REFERENCES "CurriculumKind"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Curriculum" ADD CONSTRAINT "Curriculum_curriculumKindId_fkey" FOREIGN KEY ("curriculumKindId") REFERENCES "CurriculumKind"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "CurriculumKind" ADD CONSTRAINT "CurriculumKind_institutionId_fkey" FOREIGN KEY ("institutionId") REFERENCES "Institution"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Term" ADD CONSTRAINT "Term_curriculumId_fkey" FOREIGN KEY ("curriculumId") REFERENCES "Curriculum"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -386,9 +366,3 @@ ALTER TABLE "_ResearchTeamToUser" ADD CONSTRAINT "_ResearchTeamToUser_A_fkey" FO
 
 -- AddForeignKey
 ALTER TABLE "_ResearchTeamToUser" ADD CONSTRAINT "_ResearchTeamToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CurriculumToField" ADD CONSTRAINT "_CurriculumToField_A_fkey" FOREIGN KEY ("A") REFERENCES "Curriculum"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CurriculumToField" ADD CONSTRAINT "_CurriculumToField_B_fkey" FOREIGN KEY ("B") REFERENCES "Field"("id") ON DELETE CASCADE ON UPDATE CASCADE;

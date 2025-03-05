@@ -1,14 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  // Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { InstitutionService } from './institution.service';
-import { Prisma } from '@prisma/client';
-
+// import {  Prisma } from '@prisma/client';
+import { CreateInstitutionWithRelationsDto } from './dto/createInstitutionDto';
 
 @Controller('institution')
 export class InstitutionController {
   constructor(private readonly institutionService: InstitutionService) {}
 
   @Post()
-  create(@Body() createInstitutionDto: Prisma.InstitutionCreateInput) {
+  create(@Body() createInstitutionDto: CreateInstitutionWithRelationsDto) {
     return this.institutionService.create(createInstitutionDto);
   }
 
@@ -22,10 +30,13 @@ export class InstitutionController {
     return this.institutionService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateInstitutionDto: Prisma.InstitutionUpdateInput) {
-    return this.institutionService.update(+id, updateInstitutionDto);
-  }
+  // @Patch(':id')
+  // update(
+  //   @Param('id') id: string,
+  //   @Body() updateInstitutionDto: Prisma.InstitutionUpdateInput,
+  // ) {
+  //   return this.institutionService.update(+id, updateInstitutionDto);
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string) {

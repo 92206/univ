@@ -71,37 +71,40 @@ model StudentInstituionAffiliation {
 }
 
 model Institution {
-  id                           Int                            @id @default(autoincrement())
-  name                         String
-  address                      String
-  website                      String
-  contact                      String
-  accreditation                String
-  workers                      InstitutionWorkerProfile[]
-  researchLab                  ResearchLab[]
-  verified                     Boolean                        @default(false)
+  id                            Int                            @id @default(autoincrement())
+  name                          String
+  website                       String?
+  contact                       String
+  accreditation                 String?
+  estYear                       Int
+  verified                      Boolean                        @default(false)
+  location                      String
+  imageUrl                      String                         @default("icon.png")
+  institutionType               InstitutionType
+  isPublic                      Boolean
+  workers                       InstitutionWorkerProfile[]
+  researchLabs                  ResearchLab[]
   // Self-relation: Parent Institution
-  parentInstitutionId          Int?
-  parentInstitution            Institution?                   @relation("InstitutionHierarchy", fields: [parentInstitutionId], references: [id])
+  parentInstitutionId           Int?
+  parentInstitution             Institution?                   @relation("InstitutionHierarchy", fields: [parentInstitutionId], references: [id])
   // Self-relation: Child Institutions
-  childInstitutions            Institution[]                  @relation("InstitutionHierarchy")
-  StudentInstituionAffiliation StudentInstituionAffiliation[]
-
-  researchOffer     ResearchOffer[]
-  events            Event[]
-  institutionKind   InstitutionKind @relation(fields: [institutionKindId], references: [id])
-  institutionKindId Int
-  researchTeam      ResearchTeam[]
-  curriculum        Curriculum[]
-  course            Course[]
-  Funding           Funding[]
+  childInstitutions             Institution[]                  @relation("InstitutionHierarchy")
+  StudentInstituionAffiliations StudentInstituionAffiliation[]
+  researchOffers                ResearchOffer[]
+  events                        Event[]
+  researchTeams                 ResearchTeam[]
+  curriculumKinds               CurriculumKind[]
+  courses                       Course[]
+  fundings                      Funding[]
 }
 
-model InstitutionKind {
-  id           Int           @id @default(autoincrement())
-  type         String
-  isPublic     Boolean
-  institutions Institution[]
+enum InstitutionType {
+  University
+  College
+  Polythechnic
+  Institute
+  Research_Center
+  Training_Center
 }
 
 model Blog {
@@ -173,35 +176,52 @@ model ResearchTeam {
   user          User[]
 }
 
+//subprograms e.g: Master in Ai
 model Curriculum {
   id                   Int            @id @default(autoincrement())
   name                 String
   description          String
-  degree               String
   admissionRequirement String
   applicationProcedure String
   tuition              Int
-  institutionId        Int
-  institution          Institution    @relation(fields: [institutionId], references: [id])
   curriculumKind       CurriculumKind @relation(fields: [curriculumKindId], references: [id])
   curriculumKindId     Int
-  fields               Field[]
   terms                Term[]
+  fieldOfStudy         FieldOfStudy
 }
 
-model Field {
-  id          Int          @id @default(autoincrement())
-  name        String
-  description String
-  curriculums Curriculum[]
-}
-
+//programs e.g : Master , License , Engineering 
 model CurriculumKind {
-  id          Int          @id @default(autoincrement())
-  name        String
-  description String
-  isDegree    Boolean
-  curriculums Curriculum[]
+  id            Int          @id @default(autoincrement())
+  name          String
+  description   String
+  degree        String
+  //degree vs diploma
+  isDegree      Boolean
+  duration      String
+  curriculums   Curriculum[]
+  Institution   Institution  @relation(fields: [institutionId], references: [id])
+  institutionId Int
+}
+
+// field e.g : It , business administration , 
+// model FieldOfStudy {
+//   id          Int          @id @default(autoincrement())
+//   field       Field
+//   curriculums Curriculum[]
+// }
+
+enum FieldOfStudy {
+  Arts_And_Humanities
+  Business
+  Health_And_Medecine
+  Multi_interdisciplinary_Studies
+  Public_And_Social_Services
+  Technology_Engineering_And_Technology
+  Math
+  Science
+  Social_Sciences
+  Trades_And_Personal_Services
 }
 
 model Term {
@@ -224,8 +244,8 @@ model Course {
   preReqs       String
   Term          Term        @relation(fields: [termId], references: [id])
   termId        Int
-  institutionId Int
-  institution   Institution @relation(fields: [institutionId], references: [id])
+  institutionId Int?
+  institution   Institution? @relation(fields: [institutionId], references: [id])
 }
 
 model Funding {
