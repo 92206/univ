@@ -95,6 +95,7 @@ export class InstitutionService {
             `UNIQUE CONSTRAINT VIOLATION '${JSON.stringify(error.meta)}'`,
           );
         }
+        throw error;
       }
     }
   }

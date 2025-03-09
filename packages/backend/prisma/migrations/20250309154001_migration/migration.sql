@@ -171,7 +171,6 @@ CREATE TABLE "Curriculum" (
     "admissionRequirement" TEXT NOT NULL,
     "applicationProcedure" TEXT NOT NULL,
     "tuition" INTEGER NOT NULL,
-    "institutionId" INTEGER NOT NULL,
     "curriculumKindId" INTEGER NOT NULL,
     "fieldOfStudy" "FieldOfStudy" NOT NULL,
 
@@ -212,7 +211,7 @@ CREATE TABLE "Course" (
     "credits" INTEGER NOT NULL,
     "preReqs" TEXT NOT NULL,
     "termId" INTEGER NOT NULL,
-    "institutionId" INTEGER NOT NULL,
+    "institutionId" INTEGER,
 
     CONSTRAINT "Course_pkey" PRIMARY KEY ("id")
 );
@@ -270,6 +269,12 @@ CREATE TABLE "_ResearchTeamToUser" (
 
     CONSTRAINT "_ResearchTeamToUser_AB_pkey" PRIMARY KEY ("A","B")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Institution_name_key" ON "Institution"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CurriculumKind_name_institutionId_key" ON "CurriculumKind"("name", "institutionId");
 
 -- CreateIndex
 CREATE INDEX "_Author_B_index" ON "_Author"("B");
@@ -332,7 +337,7 @@ ALTER TABLE "Term" ADD CONSTRAINT "Term_curriculumId_fkey" FOREIGN KEY ("curricu
 ALTER TABLE "Course" ADD CONSTRAINT "Course_termId_fkey" FOREIGN KEY ("termId") REFERENCES "Term"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Course" ADD CONSTRAINT "Course_institutionId_fkey" FOREIGN KEY ("institutionId") REFERENCES "Institution"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Course" ADD CONSTRAINT "Course_institutionId_fkey" FOREIGN KEY ("institutionId") REFERENCES "Institution"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Funding" ADD CONSTRAINT "Funding_institutionId_fkey" FOREIGN KEY ("institutionId") REFERENCES "Institution"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
