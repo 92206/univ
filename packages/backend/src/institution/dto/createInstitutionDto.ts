@@ -7,9 +7,12 @@ import {
   IsNumber,
   IsEnum,
   IsArray,
+  ValidateNested,
+  ArrayNotEmpty,
 } from 'class-validator';
 import { InstitutionType } from '@prisma/client'; // Assuming this is the enum you have in Prisma schema.
 import { CurriculumKindDto } from 'src/curriculum/dto/curriculumKind.dto';
+import { Type } from 'class-transformer';
 
 export class CreateInstitutionWithRelationsDto {
   @IsString()
@@ -50,6 +53,8 @@ export class CreateInstitutionWithRelationsDto {
   @IsEnum(InstitutionType)
   institutionType: InstitutionType;
   @IsArray()
-  @IsOptional()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true }) // ✅ Ensures each TermDto is validated
+  @Type(() => CurriculumKindDto) // ✅ Transforms plain objects to TermDto instances
   curriculumKinds: CurriculumKindDto[];
 }

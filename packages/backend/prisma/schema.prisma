@@ -72,7 +72,7 @@ model StudentInstituionAffiliation {
 
 model Institution {
   id                            Int                            @id @default(autoincrement())
-  name                          String
+  name                          String                         @unique
   website                       String?
   contact                       String
   accreditation                 String?
@@ -202,6 +202,7 @@ model CurriculumKind {
   curriculums   Curriculum[]
   Institution   Institution  @relation(fields: [institutionId], references: [id])
   institutionId Int
+  @@unique([name, institutionId])
 }
 
 // field e.g : It , business administration , 
@@ -235,14 +236,14 @@ model Term {
 }
 
 model Course {
-  id            Int         @id @default(autoincrement())
+  id            Int          @id @default(autoincrement())
   courseDate    DateTime
   startDate     DateTime
   name          String
   description   String
   credits       Int
   preReqs       String
-  Term          Term        @relation(fields: [termId], references: [id])
+  Term          Term         @relation(fields: [termId], references: [id])
   termId        Int
   institutionId Int?
   institution   Institution? @relation(fields: [institutionId], references: [id])

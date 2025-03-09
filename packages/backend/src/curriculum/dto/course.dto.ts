@@ -1,7 +1,13 @@
-import { IsString, IsNotEmpty, IsInt, IsOptional, IsDate,  Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsInt,
+  IsOptional,
+  IsDate,
+  Min,
+} from 'class-validator';
 
 export class CourseDto {
-
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -25,9 +31,10 @@ export class CourseDto {
   startDate: Date;
 
   @IsInt()
-  termId: number; // Foreign key to Term
+  @IsOptional()
+  termId?: number; // Foreign key to Term
 
   @IsOptional()
   @IsInt()
-  institutionId?: number;  // Foreign key to Institution (optional)
+  institutionId?: number; // Foreign key to Institution (optional)
 }

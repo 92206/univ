@@ -1,5 +1,12 @@
-import { IsString, IsNotEmpty, IsInt, IsDate } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsInt,
+  IsDate,
+  ValidateNested,
+} from 'class-validator';
 import { CourseDto } from './course.dto';
+import { Type } from 'class-transformer';
 
 export class TermDto {
   @IsString()
@@ -13,7 +20,8 @@ export class TermDto {
   endDate: Date;
 
   @IsInt()
-  curriculumId: number; // Foreign key to Curriculum, this is a required field
-
+  curriculumId?: number; // Foreign key to Curriculum, this is a required field
+  @ValidateNested({ each: true }) // ✅ Ensures each TermDto is validated
+  @Type(() => CourseDto) // ✅ Transforms plain objects to TermDto instances
   courses: CourseDto[];
 }

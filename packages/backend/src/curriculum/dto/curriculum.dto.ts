@@ -6,8 +6,10 @@ import {
   IsOptional,
   IsArray,
   Min,
+  ValidateNested,
 } from 'class-validator';
-import { FieldOfStudy } from '@prisma/client'; // Assuming you have these enums in your Prisma schema
+import { Type } from 'class-transformer';
+import { FieldOfStudy } from '@prisma/client';
 import { TermDto } from './term.dto';
 
 export class CurriculumDto {
@@ -28,16 +30,18 @@ export class CurriculumDto {
   applicationProcedure: string;
 
   @IsInt()
-  @Min(0) // Ensure the tuition fee is non-negative
+  @Min(0)
   tuition: number;
 
   @IsInt()
-  curriculumKindId: number; // Foreign key to CurriculumKind
+  @IsOptional()
+  curriculumKindId?: number;
 
   @IsEnum(FieldOfStudy)
   fieldOfStudy: FieldOfStudy;
 
-  @IsOptional()
   @IsArray()
-  terms: TermDto[]; // Optional array, can be used for storing multiple terms related to the curriculum
+  @ValidateNested({ each: true }) // ✅ Ensures each TermDto is validated
+  @Type(() => TermDto) // ✅ Transforms plain objects to TermDto instances
+  terms: TermDto[];
 }

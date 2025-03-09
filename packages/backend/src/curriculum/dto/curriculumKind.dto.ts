@@ -1,8 +1,16 @@
-import { IsString, IsNotEmpty, IsBoolean, IsInt } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsBoolean,
+  IsInt,
+  IsArray,
+  ValidateNested,
+  IsOptional,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { CurriculumDto } from './curriculum.dto';
 
 export class CurriculumKindDto {
-
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -13,7 +21,7 @@ export class CurriculumKindDto {
 
   @IsString()
   @IsNotEmpty()
-  degree: string;  // Degree or Diploma
+  degree: string;
 
   @IsBoolean()
   isDegree: boolean;
@@ -23,8 +31,11 @@ export class CurriculumKindDto {
   duration: string;
 
   @IsInt()
-  institutionId: number; // Foreign key to Institution, this is a required field
+  @IsOptional()
+  institutionId?: number;
 
-  curriculums : CurriculumDto[]
-
+  @IsArray()
+  @ValidateNested({ each: true }) // ✅ Ensure each element in array is validated
+  @Type(() => CurriculumDto) // ✅ Ensure objects are transformed into instances of CurriculumDto
+  curriculums: CurriculumDto[];
 }
